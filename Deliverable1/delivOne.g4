@@ -11,14 +11,27 @@ endExpr: expr ;
 expr:	assignment
 	| expr ('+'|'-') expr
 	| expr ('*'|'/' | '%') expr
-	| INT ;
+	| NUMBER
+	| VARNAME
+	| STRING
+	| CHAR;
 
-INT:	[0-9]+;
-VARNAME: [a-zA-Z]+;
+NUMBER: [0-9]+ ('.' [0-9]+)?;
+CHAR: '\'' [a-zA-Z] '\'';
+STRING: '"' (~["\r\n])* '"';
+VARNAME: [a-zA-Z_][a-zA-Z0-9_]*;
+
 assignment:	VARNAME '=' expr
    | VARNAME '+=' expr
    | VARNAME '-=' expr
    | VARNAME '*=' expr
-   | VARNAME '/=' expr;
+   | VARNAME '/=' expr
+   | VARNAME  '=' '[' array ']';
 
+array: element (',' element)*;
+
+element: NUMBER
+   | CHAR
+   | VARNAME
+   | STRING;
 WS:	[ \t\r\n]+ -> skip;

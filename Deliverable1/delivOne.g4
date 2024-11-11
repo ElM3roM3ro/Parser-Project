@@ -5,10 +5,22 @@
 grammar delivOne;
 
 
-endExpr: expr ;
+//endExpr: expr+ ;
 
-expr:	assignment
-	| expr ('+'|'-') expr
+//expr:	assignment
+//	| expr ('+'|'-') expr
+//	| expr ('*'|'/' | '%') expr
+//	| NUMBER
+//	| VARNAME
+//	| STRING
+//	| CHAR;
+
+
+prog: (statement)+ EOF;
+
+statement: assignment | expr ;
+
+expr:	expr ('+'|'-') expr
 	| expr ('*'|'/' | '%') expr
 	| NUMBER
 	| VARNAME

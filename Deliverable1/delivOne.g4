@@ -4,7 +4,6 @@
 
 grammar delivOne;
 
-prog:	'def main():'  expr  EOF;
 
 endExpr: expr ;
 

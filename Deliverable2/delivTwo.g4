@@ -1,52 +1,85 @@
 //  Authors: Victor Peralta, Nolan Rink, Zach Thomas
 //  Version: 2.0
 //  Description: Below is our implementation for the second deliverable.
-
 grammar delivTwo;
 
-prog: (statement)+ EOF;
+prog: (statement)* EOF;
 
-statement: assignment | expr | conBranch;
+statement: assignment | conBranch;
 
-expr:	expr ('+'|'-') expr
-	| expr ('*'|'/' | '%') expr
-	| NUMBER
-	| VARNAME
-	| STRING
-	| CHAR;
+assignment:
+      VARNAME '=' expr
+    | VARNAME '+=' expr
+    | VARNAME '-=' expr
+    | VARNAME '*=' expr
+    | VARNAME '/=' expr
+    | VARNAME '=' '[' array ']'
+    ;
 
-conBranch: 'if' conditional ':' (TAB statement)+;
+array: expr (',' expr)*;
 
+conBranch
+    : 'if' expr ':'  block elifClause* elseClause?
+    ;
 
-conditional: expr '<' expr
-   | expr '<=' expr
-   | expr '>' expr
-   | expr '>=' expr
-   | expr '==' expr
-	 | expr '!=' expr
-	 | expr 'and' expr
-	 | expr 'or' expr
-	 | expr 'not' expr;
+elifClause
+    : 'elif' expr ':'  block
+    ;
 
-assignment:	VARNAME '=' expr
-   | VARNAME '+=' expr
-   | VARNAME '-=' expr
-   | VARNAME '*=' expr
-   | VARNAME '/=' expr
-	 | VARNAME  '=' '[' array ']';
+elseClause
+    : 'else' ':'  block
+    ;
 
-array: element (',' element)*;
+block: (TAB statement)+;
 
-element: NUMBER
-	 | CHAR
-   | VARNAME
-	 | STRING;
+expr: orExpr;
+
+orExpr
+    : andExpr ('or' andExpr)*
+    ;
+
+andExpr
+    : notExpr ('and' notExpr)*
+    ;
+
+notExpr
+    : 'not' notExpr
+    | relationalExpr
+    ;
+
+relationalExpr
+    : additiveExpr (('<' | '<=' | '>' | '>=' | '==' | '!=') additiveExpr)?
+    ;
+
+additiveExpr
+    : multiplicativeExpr (('+' | '-') multiplicativeExpr)*
+    ;
+
+multiplicativeExpr
+    : unaryExpr (('*' | '/' | '%') unaryExpr)*
+    ;
+
+unaryExpr
+    : '-' unaryExpr
+    | primary
+    ;
+
+primary
+    : '(' expr ')'
+    | NUMBER
+    | VARNAME
+    | STRING
+    | CHAR
+    | 'True'
+    | 'False'
+    ;
 
 NUMBER: [0-9]+ ('.' [0-9]+)?;
 CHAR: '\'' [a-zA-Z] '\'';
 STRING: '"' (~["\r\n])* '"';
 VARNAME: [a-zA-Z_][a-zA-Z0-9_]*;
-//TAB: [\t];
-TAB: '@';
 
-WS:	[ \r\n]+ -> skip;
+TAB: '@'; // Four spaces representing indentation
+
+
+WS:	[ \r\n]+ -> skip; // Modify this rule to avoid skipping indentation spaces

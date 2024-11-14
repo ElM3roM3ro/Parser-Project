@@ -2,11 +2,11 @@
 //  Version: 2.0
 //  Description: Below is our implementation for the second deliverable.
 
-grammar delivOne;
+grammar delivTwo;
 
 prog: (statement)+ EOF;
 
-statement: assignment | expr ;
+statement: assignment | expr | conBranch;
 
 expr:	expr ('+'|'-') expr
 	| expr ('*'|'/' | '%') expr
@@ -15,16 +15,18 @@ expr:	expr ('+'|'-') expr
 	| STRING
 	| CHAR;
 
+conBranch: 'if' conditional ':' (TAB statement)+;
 
-conditional: expr "<" expr
-   | expr "<=" expr
-   | expr ">" expr
-   | expr ">=" expr
-   | expr "==" expr
-	 | expr "!=" expr
-	 | expr "and" expr
-	 | expr "or" expr
-	 | expr "not" expr
+
+conditional: expr '<' expr
+   | expr '<=' expr
+   | expr '>' expr
+   | expr '>=' expr
+   | expr '==' expr
+	 | expr '!=' expr
+	 | expr 'and' expr
+	 | expr 'or' expr
+	 | expr 'not' expr;
 
 assignment:	VARNAME '=' expr
    | VARNAME '+=' expr
@@ -44,5 +46,7 @@ NUMBER: [0-9]+ ('.' [0-9]+)?;
 CHAR: '\'' [a-zA-Z] '\'';
 STRING: '"' (~["\r\n])* '"';
 VARNAME: [a-zA-Z_][a-zA-Z0-9_]*;
+//TAB: [\t];
+TAB: '@';
 
-WS:	[ \t\r\n]+ -> skip;
+WS:	[ \r\n]+ -> skip;

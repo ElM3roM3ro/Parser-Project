@@ -79,7 +79,9 @@ CHAR: '\'' [a-zA-Z] '\'';
 STRING: '"' (~["\r\n])* '"';
 VARNAME: [a-zA-Z_][a-zA-Z0-9_]*;
 
-TAB: '@'; // Four spaces representing indentation
+TAB: '    '; // Four spaces representing indentation
 
 
-WS:	[ \r\n]+ -> skip; // Modify this rule to avoid skipping indentation spaces
+NL: [\r\n]+ -> skip; // Token for newlines
+
+WS: [ \t]+ -> skip; // Skip spaces and tabs, but not n

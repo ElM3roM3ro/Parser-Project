@@ -3,7 +3,7 @@
 //  Description: Below is our implementation for the third deliverable.
 grammar delivThree;
 
-prog: (statement NEWLINE)* EOF;
+prog: (statement NEWLINE?)* EOF;
 
 // Statements include assignments, conditionals, loops, and comments
 statement
@@ -145,7 +145,7 @@ TAB: '\t';
 BLANKLINE: [ \t]* NEWLINE -> skip;
 
 // Newlines
-NEWLINE: [\r\n]+;
-
+NEWLINE: [\n\r]+;
+//NEWLINE: '\r'? '\n';
 // Whitespace
 WS: [ \t]+ -> skip;

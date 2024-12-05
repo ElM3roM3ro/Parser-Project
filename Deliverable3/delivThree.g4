@@ -3,12 +3,19 @@
 //  Description: Below is our implementation for the third deliverable.
 grammar delivThree;
 
-prog: (statement)* EOF;
+prog: (statement NEWLINE)* EOF;
 
-statement: assignment | conBranch;
+// Statements include assignments, conditionals, loops, and comments
+statement
+    : assignment
+    | ifBlock
+    | loop
+    | COMMENT
+    ;
 
-assignment:
-      VARNAME '=' expr
+// Assignments
+assignment
+    : VARNAME '=' expr
     | VARNAME '+=' expr
     | VARNAME '-=' expr
     | VARNAME '*=' expr
@@ -18,21 +25,30 @@ assignment:
 
 array: expr (',' expr)*;
 
-conBranch
-    : 'if' expr ':'  block elifClause* elseClause?
+// If/Elif/Else blocks
+ifBlock
+    : 'if' expr ':' NEWLINE TAB (statement NEWLINE)+
+      (elifBlock | elseBlock)?
     ;
 
-elifClause
-    : 'elif' expr ':'  block
+elifBlock
+    : 'elif' expr ':' NEWLINE TAB (statement NEWLINE)+
     ;
 
-elseClause
-    : 'else' ':'  block
+elseBlock
+    : 'else' ':' NEWLINE TAB (statement NEWLINE)+
     ;
 
-block: (TAB statement)+;
+// Loops
+loop
+    : 'while' expr ':' NEWLINE TAB (statement NEWLINE)+
+    | 'for' VARNAME 'in' expr ':' NEWLINE TAB (statement NEWLINE)+
+    ;
 
-expr: orExpr;
+// Expressions
+expr
+    : orExpr
+    ;
 
 orExpr
     : andExpr ('or' andExpr)*
@@ -64,24 +80,72 @@ unaryExpr
     | primary
     ;
 
+// Primary expressions
 primary
     : '(' expr ')'
     | NUMBER
-    | VARNAME
     | STRING
+    | VARNAME
     | CHAR
     | 'True'
     | 'False'
     ;
 
-NUMBER: [0-9]+ ('.' [0-9]+)?;
-CHAR: '\'' [a-zA-Z] '\'';
-STRING: '"' (~["\r\n])* '"';
+// Lexer Rules
+
+// Keywords
+IF: 'if';
+ELIF: 'elif';
+ELSE: 'else';
+WHILE: 'while';
+FOR: 'for';
+IN: 'in';
+OR: 'or';
+AND: 'and';
+NOT: 'not';
+TRUE: 'True';
+FALSE: 'False';
+
+// Operators
+EQ: '=';
+PLUSEQ: '+=';
+MINUSEQ: '-=';
+MULTEQ: '*=';
+DIVEQ: '/=';
+PLUS: '+';
+MINUS: '-';
+MULT: '*';
+DIV: '/';
+MOD: '%';
+LT: '<';
+LE: '<=';
+GT: '>';
+GE: '>=';
+EQEQ: '==';
+NEQ: '!=';
+
+// Delimiters
+COLON: ':';
+LPAREN: '(';
+RPAREN: ')';
+
+// Variables and Literals
 VARNAME: [a-zA-Z_][a-zA-Z0-9_]*;
+NUMBER: [0-9]+ ('.' [0-9]+)?;
+STRING: '"' (~["\r\n])* '"';
+CHAR: '\'' [a-zA-Z] '\'';
 
-TAB: '    '; // Four spaces representing indentation
+// Comments
+COMMENT: '#' ~[\r\n]* -> skip;
 
+// Tabs for Indentation
+TAB: '\t';
 
-NL: [\r\n]+ -> skip; // Token for newlines
+// Blank Lines
+BLANKLINE: [ \t]* NEWLINE -> skip;
 
-WS: [ \t]+ -> skip; // Skip spaces and tabs, but not n
+// Newlines
+NEWLINE: [\r\n]+;
+
+// Whitespace
+WS: [ \t]+ -> skip;

@@ -4,6 +4,9 @@
 - Victor Peralta
 - Zach Thomas
 
+###Explanation
+This project is a parser to recognize python like tokens. Essientially it will match the syntax of a python file. 
+
 ### Requirements:
 Basic overview: The first file is a .g4 file, where we implemented our parser The second (test.py) is a python file that we used to test our antlr grammar. We mainly tested on the ANTLR Lab website. The third file is project_deliverable_3.py, the one provided on canvas
 Steps for setup:

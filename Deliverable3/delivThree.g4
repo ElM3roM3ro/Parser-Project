@@ -3,46 +3,59 @@
 //  Description: Below is our implementation for the third deliverable.
 grammar delivThree;
 
-prog: (statement NEWLINE?)* EOF;
+// Entry point
+prog: (statement | COMMENT | MULTILINE_COMMENT | NEWLINE)* EOF;
 
-// Statements include assignments, conditionals, loops, and comments
+// Statements
 statement
-    : assignment
-    | ifBlock
-    | loop
-    | COMMENT
+    : assignment NEWLINE
+    | augmentedAssignment NEWLINE
+    | arrayAssignment NEWLINE
+    | ifBlock 
+    | whileLoop 
+    | forLoop 
     ;
 
 // Assignments
 assignment
     : VARNAME '=' expr
-    | VARNAME '+=' expr
-    | VARNAME '-=' expr
-    | VARNAME '*=' expr
-    | VARNAME '/=' expr
-    | VARNAME '=' '[' array ']'
     ;
 
-array: expr (',' expr)*;
+// Augmented Assignments (e.g., +=, -=, etc.)
+augmentedAssignment
+    : VARNAME ('+=' | '-=' | '*=' | '/=') expr
+    ;
+
+// Array Assignments
+arrayAssignment
+    : VARNAME '=' '[' arrayElements ']'
+    ;
+
+arrayElements
+    : expr (',' expr)*
+    ;
 
 // If/Elif/Else blocks
 ifBlock
-    : 'if' expr ':' NEWLINE TAB (statement NEWLINE)+
-      (elifBlock | elseBlock)?
+    : 'if' expr ':' NEWLINE TAB (statement TAB)* (elifBlock | elseBlock)?
     ;
 
 elifBlock
-    : 'elif' expr ':' NEWLINE TAB (statement NEWLINE)+
+    : 'elif' expr ':' NEWLINE TAB (statement TAB)* 
     ;
 
 elseBlock
-    : 'else' ':' NEWLINE TAB (statement NEWLINE)+
+    : 'else' ':' NEWLINE TAB (statement TAB)* 
     ;
 
-// Loops
-loop
-    : 'while' expr ':' NEWLINE TAB (statement NEWLINE)+
-    | 'for' VARNAME 'in' expr ':' NEWLINE TAB (statement NEWLINE)+
+// While loops
+whileLoop
+    : 'while' expr ':' NEWLINE TAB (statement | COMMENT)* UNTAB
+    ;
+
+// For loops
+forLoop
+    : 'for' VARNAME 'in' expr ':' NEWLINE TAB (statement | COMMENT)* UNTAB
     ;
 
 // Expressions
@@ -60,10 +73,10 @@ andExpr
 
 notExpr
     : 'not' notExpr
-    | relationalExpr
+    | comparisonExpr
     ;
 
-relationalExpr
+comparisonExpr
     : additiveExpr (('<' | '<=' | '>' | '>=' | '==' | '!=') additiveExpr)?
     ;
 
@@ -80,72 +93,55 @@ unaryExpr
     | primary
     ;
 
-// Primary expressions
 primary
     : '(' expr ')'
     | NUMBER
     | STRING
-    | VARNAME
     | CHAR
+    | VARNAME
     | 'True'
     | 'False'
     ;
 
-// Lexer Rules
+// Comments
+COMMENT: '#' ~[\r\n]* -> skip;
+MULTILINE_COMMENT: '\'\'\'' .*? '\'\'\'' -> skip;
 
-// Keywords
-IF: 'if';
-ELIF: 'elif';
-ELSE: 'else';
-WHILE: 'while';
-FOR: 'for';
-IN: 'in';
-OR: 'or';
-AND: 'and';
-NOT: 'not';
-TRUE: 'True';
-FALSE: 'False';
+// Tabs for fixed indentation
+TAB: '\t'; // Tab character for indentation
+UNTAB: '<UNTAB>'; // Explicit token to signify dedentation
 
-// Operators
-EQ: '=';
-PLUSEQ: '+=';
-MINUSEQ: '-=';
-MULTEQ: '*=';
-DIVEQ: '/=';
-PLUS: '+';
-MINUS: '-';
-MULT: '*';
-DIV: '/';
-MOD: '%';
-LT: '<';
-LE: '<=';
-GT: '>';
-GE: '>=';
-EQEQ: '==';
-NEQ: '!=';
+// Newline handling
+NEWLINE: [\r\n]+;
 
-// Delimiters
-COLON: ':';
-LPAREN: '(';
-RPAREN: ')';
-
-// Variables and Literals
+// Variables and literals
 VARNAME: [a-zA-Z_][a-zA-Z0-9_]*;
 NUMBER: [0-9]+ ('.' [0-9]+)?;
 STRING: '"' (~["\r\n])* '"';
 CHAR: '\'' [a-zA-Z] '\'';
 
-// Comments
-COMMENT: '#' ~[\r\n]* -> skip;
-
-// Tabs for Indentation
-TAB: '\t';
-
-// Blank Lines
+// Whitespace
+WS: [ ]+ -> skip;
 BLANKLINE: [ \t]* NEWLINE -> skip;
 
-// Newlines
-NEWLINE: [\n\r]+;
-//NEWLINE: '\r'? '\n';
-// Whitespace
-WS: [ \t]+ -> skip;
+// Lexer rules for arithmetic operators
+PLUS: '+';
+MINUS: '-';
+MULT: '*';
+DIV: '/';
+MOD: '%';
+
+// Relational operators
+LT: '<';
+LE: '<=';
+GT: '>';
+GE: '>=';
+EQ: '==';
+NEQ: '!=';
+
+// Assignment operators
+ASSIGN: '=';
+PLUSEQ: '+=';
+MINUSEQ: '-=';
+MULTEQ: '*=';
+DIVEQ: '/=';
